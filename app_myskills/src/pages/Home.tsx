@@ -11,6 +11,11 @@ import {
 import { Button } from '../components/Button';
 import { SkillCard } from '../components/SkillCard';
 
+interface SkillData {
+  id: string;
+  name: string;
+}
+
 export function Home() {
   // newSkill = state, setNewSkill = function to update this state
   // we cant modify a state directly, we have to call a function to modify this state
@@ -22,20 +27,31 @@ export function Home() {
 
   //between the parentheses we can set an initial state
   const [newSkill, setNewSkill] = useState('');
-  const [mySkills, setMySkills] = useState([]);
+  const [mySkills, setMySkills] = useState<SkillData[]>([]);
   const [greeting, setGreeting] = useState('');
 
-  //we use the prefix handle when the function is actioned by an user
+  //we use the prefix handle when the function is called by an user
   //ex: when an user press some button, the system has to add something and show at the screen
 
   //setMySkills receive an array with all old proprieties and add a new skill at this array
   function handleAddNewSkill() {
-    setMySkills(oldState => [...oldState, newSkill]);
+    const data = {
+      id: String(new Date().getTime()),
+      name: newSkill
+    }
+
+    setMySkills(oldState => [...oldState, data]);
+  }
+
+  function handleRemoveSkill(id: string) {
+    setMySkills(oldState => oldState.filter(
+      skill => skill.id !== id
+    ));
   }
 
   //The useEffect has action in the moment of mount the component to show something on screen
   //it receive 2 params. 1st - function | 2nd - dependency array
-  //When any dependency in this array change, the useEffect will be actioned
+  //When any dependency in this array change, the useEffect will be called
   //if we dont put any dependency, the useEffect will be called at moment to mount the component on screen
   //it will be load one time, when the page were loading.
   useEffect(() => {
@@ -66,7 +82,10 @@ export function Home() {
         onChangeText={setNewSkill}
       />
 
-      <Button onPress={handleAddNewSkill}/>
+      <Button
+        title='Add'
+        onPress={handleAddNewSkill}
+      />
 
       <Text style={[styles.title, { marginVertical: 50 }]}>
         My Skills
@@ -74,9 +93,12 @@ export function Home() {
 
       <FlatList
         data={mySkills}
-        keyExtractor={item => item}
+        keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <SkillCard skill={item}/>
+          <SkillCard
+            skill={item.name}
+            onPress={() => handleRemoveSkill(item.id)}
+          />
         )}
       />
 
@@ -88,7 +110,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#121015',
-    paddingHorizontal: 20,
+    paddingHorizontal: 30,
     paddingVertical: 70
   },
   title: {
