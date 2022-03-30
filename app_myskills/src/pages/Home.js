@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,7 @@ import {
   SafeAreaView,
   TextInput,
   Platform,
-  FlatList
+  FlatList,
 } from 'react-native';
 import { Button } from '../components/Button';
 import { SkillCard } from '../components/SkillCard';
@@ -23,6 +23,7 @@ export function Home() {
   //between the parentheses we can set an initial state
   const [newSkill, setNewSkill] = useState('');
   const [mySkills, setMySkills] = useState([]);
+  const [greeting, setGreeting] = useState('');
 
   //we use the prefix handle when the function is actioned by an user
   //ex: when an user press some button, the system has to add something and show at the screen
@@ -32,9 +33,31 @@ export function Home() {
     setMySkills(oldState => [...oldState, newSkill]);
   }
 
+  //The useEffect has action in the moment of mount the component to show something on screen
+  //it receive 2 params. 1st - function | 2nd - dependency array
+  //When any dependency in this array change, the useEffect will be actioned
+  //if we dont put any dependency, the useEffect will be called at moment to mount the component on screen
+  //it will be load one time, when the page were loading.
+  useEffect(() => {
+    const currentHour = new Date().getHours();
+
+    if(currentHour < 12) {
+      setGreeting('Good morning!')
+    }
+    else if (currentHour >= 12 && currentHour < 18) {
+      setGreeting('Good afternoon!')
+    } else {
+      setGreeting('Good evening!')
+    }
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Welcome, Miranda.</Text>
+
+      <Text style={styles.greetings}>
+        { greeting }
+      </Text>
 
       <TextInput
         style={styles.input}
@@ -81,4 +104,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     borderRadius: 7
   },
+  greetings: {
+    color: '#fff'
+  }
 })
